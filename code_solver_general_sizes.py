@@ -5,7 +5,7 @@ import numpy as np
 
 
 
-
+# with secret code and a guess, it returns number of black and white pegs
 def evaluate_guessG(secret_number:int, guess_number:int, len_pegs, len_colours):
     secret_code = transfer_int_to_codeG(secret_number, len_colours, len_pegs)
     guess = transfer_int_to_codeG(guess_number, len_colours, len_pegs)
@@ -42,11 +42,7 @@ def evaluate_guessG(secret_number:int, guess_number:int, len_pegs, len_colours):
     return [b,w]
                
 
-def get_guess():
-    strin = input("Type guess: ")
-    guess = [int(strin[i]) for i in range(4)]
-    return guess
-
+# generates list of possible scores that can be awarded with the current count of pegs
 def create_list_of_scores(len_pegs:int):
     all_scores:list[list[int]] = []
     for nb in range(len_pegs+1):
@@ -58,7 +54,7 @@ def create_list_of_scores(len_pegs:int):
     return all_scores
                 
 
-
+# checks if a possible code (next_guess) belongs in the partition table to this score
 def check_code_scoreG(next_guess, next_score, secret_code, len_pegs, len_colours):
     real_score = evaluate_guessG(secret_code, next_guess, len_pegs, len_colours)
     if real_score == next_score:
@@ -66,7 +62,7 @@ def check_code_scoreG(next_guess, next_score, secret_code, len_pegs, len_colours
     else:
         return False
 
-
+# transfers integer to code (list)
 def transfer_int_to_codeG(number, len_colours, len_pegs):
     code = [0]*len_pegs
     for i in range(len_pegs):
@@ -94,15 +90,21 @@ def create_partition_tableG(next_guess:int, possible_codes, len_pegs, len_colour
                 partition_of_codes[score].extend([code])
     return partition_table, partition_of_codes
 
+
+# finds best next guess from all codes with respect to partition table of possible codes
 def find_best_guessG(possible_codes, len_pegs, len_colours, all_scores):
     min_of_max_partition = len(possible_codes)
     best_partition:list[int] = []
     best_next_guess = -1
     best_partition_with_codes = []
+    
+    # if i have just one possible code, i return it
     if len(possible_codes) == 1:
         return possible_codes[0], best_partition, best_partition_with_codes
+    
+    # In the first iteration, if i am choosing from all codes, i choose only those that are increasing (first half)
     if len(possible_codes) == len_colours**len_pegs:
-        for number in range(32):
+        for number in range(int(len_colours**len_pegs / len_colours)):
             temp_partition_table, partition_of_codes = create_partition_tableG(number, possible_codes, len_pegs, len_colours, all_scores)
             temp_max_partition = max(temp_partition_table)
             if temp_max_partition < min_of_max_partition:
@@ -110,6 +112,8 @@ def find_best_guessG(possible_codes, len_pegs, len_colours, all_scores):
                 best_partition = temp_partition_table
                 best_next_guess = number
                 best_partition_with_codes = partition_of_codes
+
+    # in general iteration, I am choosing from all codes in possible codes for the next guess
     else:
         for number in possible_codes:
             temp_partition_table, partition_of_codes = create_partition_tableG(number, possible_codes, len_pegs, len_colours, all_scores)
@@ -122,6 +126,8 @@ def find_best_guessG(possible_codes, len_pegs, len_colours, all_scores):
     
     return best_next_guess, best_partition, best_partition_with_codes
 
+
+# finds the index of a score from the number of black and white pegs
 def find_score_from_bw(b,w, all_scores):
     for i in range(len(all_scores)):
         if b == all_scores[i][0]:
@@ -129,6 +135,7 @@ def find_score_from_bw(b,w, all_scores):
                 return i
 
 
+# function that plays one set 
 def play_minmaxG(len_pegs, len_colours):
     all_scores = create_list_of_scores(len_pegs)
     secret_code = np.random.randint(0,len_colours**len_pegs)
@@ -194,7 +201,7 @@ def find_partition_table(history, possible_scores):
 
 if __name__ == '__main__':
     # find_best_guess([i for i in range(6**4)])
-    len_pegs = 6
+    len_pegs = 4
     len_colours = 2
     #print(all_scores)
     #print(len(all_scores))
