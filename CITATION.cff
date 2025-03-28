@@ -1,1 +1,8 @@
 
+
+@software{Simsa_mastermind_strategies,
+  author = {Šimša, Martin},
+  title = {{Strategies for Mastermind}},
+  url={https://github.com/martinsimsa/mastermind},
+  year = {2025}
+}
