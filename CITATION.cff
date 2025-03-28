@@ -1,8 +1,9 @@
-
-
-@software{Simsa_mastermind_strategies,
-  author = {Šimša, Martin},
-  title = {{Strategies for Mastermind}},
-  url={https://github.com/martinsimsa/mastermind},
-  year = {2025}
-}
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+- family-names: "Šimša"
+  given-names: "Martin"
+title: "Strategies for Mastermind"
+version: 1.0.1
+date-released: 2025-03-28
+url: "https://github.com/martinsimsa/mastermind"
