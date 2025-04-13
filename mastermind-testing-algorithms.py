@@ -201,7 +201,7 @@ def find_best_guess_minmax_old_version(possible_codes, len_pegs, len_colours, al
 
 
 # finds best next guess from all codes with respect to partition table of possible codes
-def find_best_guess_with_function(possible_codes, len_pegs, len_colours, all_scores, all_codes, partition_table_function, compare_function, start_code=None):
+def find_best_guess_with_function(possible_codes, len_pegs, len_colours, all_scores, all_codes, partition_table_function, compare_function, start_code=None, choose_from_candidates=False):
     # set initial value according to what we are looking for in the compare function
     if compare_function == higher_is_better:
         best_partition_table_value = -1
@@ -231,22 +231,40 @@ def find_best_guess_with_function(possible_codes, len_pegs, len_colours, all_sco
     
     # in general iteration, I am choosing from all codes for the next guess
     else:
-        for code in all_codes:
-            temp_partition_table, partition_of_codes = create_partition_tableG(code, possible_codes, len_pegs, len_colours, all_scores)
-            temp_partition_table_value = partition_table_function(temp_partition_table)
-            # compare function returns true if first argument is better than the second one, in this case, we compare temp value to current best value
-            if compare_function(temp_partition_table_value, best_partition_table_value):
-                best_partition_table_value = temp_partition_table_value
-                best_partition = temp_partition_table
-                best_next_guess = code
-                best_partition_with_codes = partition_of_codes
+        if choose_from_candidates == False:
+            for code in all_codes:
+                temp_partition_table, partition_of_codes = create_partition_tableG(code, possible_codes, len_pegs, len_colours, all_scores)
+                temp_partition_table_value = partition_table_function(temp_partition_table)
+                # compare function returns true if first argument is better than the second one, in this case, we compare temp value to current best value
+                if compare_function(temp_partition_table_value, best_partition_table_value):
+                    best_partition_table_value = temp_partition_table_value
+                    best_partition = temp_partition_table
+                    best_next_guess = code
+                    best_partition_with_codes = partition_of_codes
 
-            # case when initially partition wasnt with a candidate and we want to use one
-            if temp_partition_table_value == best_partition_table_value and (best_next_guess not in possible_codes) and (code in possible_codes):
-                best_partition_table_value = temp_partition_table_value
-                best_partition = temp_partition_table
-                best_next_guess = code
-                best_partition_with_codes = partition_of_codes
+                # case when initially partition wasnt with a candidate and we want to use one
+                if temp_partition_table_value == best_partition_table_value and (best_next_guess not in possible_codes) and (code in possible_codes):
+                    best_partition_table_value = temp_partition_table_value
+                    best_partition = temp_partition_table
+                    best_next_guess = code
+                    best_partition_with_codes = partition_of_codes
+        if choose_from_candidates == True:
+            for code in possible_codes:
+                temp_partition_table, partition_of_codes = create_partition_tableG(code, possible_codes, len_pegs, len_colours, all_scores)
+                temp_partition_table_value = partition_table_function(temp_partition_table)
+                # compare function returns true if first argument is better than the second one, in this case, we compare temp value to current best value
+                if compare_function(temp_partition_table_value, best_partition_table_value):
+                    best_partition_table_value = temp_partition_table_value
+                    best_partition = temp_partition_table
+                    best_next_guess = code
+                    best_partition_with_codes = partition_of_codes
+
+                # case when initially partition wasnt with a candidate and we want to use one
+                if temp_partition_table_value == best_partition_table_value and (best_next_guess not in possible_codes) and (code in possible_codes):
+                    best_partition_table_value = temp_partition_table_value
+                    best_partition = temp_partition_table
+                    best_next_guess = code
+                    best_partition_with_codes = partition_of_codes
     
     return best_next_guess, best_partition, best_partition_with_codes
 
@@ -493,7 +511,7 @@ def solve_using_partition_table(len_pegs, len_colours, start_code):
 
 
 # find best guess for each set of candidates and then test all 14 scores to step forward - should be faster than going through all candidates to sort them
-def solve_using_partition_table_with_function_pointer(len_pegs, len_colours, start_code, partition_table_function, compare_function):
+def solve_using_partition_table_with_function_pointer(len_pegs, len_colours, start_code, partition_table_function, compare_function, choose_from_candidates):
     len_codes = len_colours**len_pegs
     
     all_scores = create_list_of_scores(len_pegs)
@@ -530,7 +548,7 @@ def solve_using_partition_table_with_function_pointer(len_pegs, len_colours, sta
             if temp_len_guesses + 1 == 6:
                 print(temp_candidates)
         else:
-            temp_guess, temp_partition_table, temp_partition = find_best_guess_with_function(temp_candidates, len_pegs, len_colours, all_scores, all_codes, partition_table_function, compare_function)
+            temp_guess, temp_partition_table, temp_partition = find_best_guess_with_function(temp_candidates, len_pegs, len_colours, all_scores, all_codes, partition_table_function, compare_function, choose_from_candidates=choose_from_candidates)
         
             for i in range(len(temp_partition_table)):
                 if temp_partition_table[i] == 0:
@@ -553,7 +571,7 @@ def solve_using_partition_table_with_function_pointer(len_pegs, len_colours, sta
 
 if __name__ == '__main__':
     # find_best_guess([i for i in range(6**4)])
-    len_pegs = 6
+    len_pegs = 4
     len_colours = 6
     #print(all_scores)
     #print(len(all_scores))
@@ -577,7 +595,7 @@ if __name__ == '__main__':
     
     
 
-    #solve_using_partition_table_with_function_pointer(len_pegs, len_colours, [1,1,2], return_max, lower_is_better)
+    solve_using_partition_table_with_function_pointer(len_pegs, len_colours, [1,1,2,3], count_parts, higher_is_better, True)
 
     #first_round(len_pegs, len_colours)
     
