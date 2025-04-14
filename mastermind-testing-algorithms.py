@@ -248,6 +248,7 @@ def find_best_guess_with_function(possible_codes, len_pegs, len_colours, all_sco
                     best_partition = temp_partition_table
                     best_next_guess = code
                     best_partition_with_codes = partition_of_codes
+                    
         if choose_from_candidates == True:
             for code in possible_codes:
                 temp_partition_table, partition_of_codes = create_partition_tableG(code, possible_codes, len_pegs, len_colours, all_scores)
@@ -571,8 +572,8 @@ def solve_using_partition_table_with_function_pointer(len_pegs, len_colours, sta
 
 if __name__ == '__main__':
     # find_best_guess([i for i in range(6**4)])
-    len_pegs = 4
-    len_colours = 6
+    len_pegs = 10
+    len_colours = 2
     #print(all_scores)
     #print(len(all_scores))
     #play_minmaxG(len_pegs, len_colours)
@@ -595,7 +596,7 @@ if __name__ == '__main__':
     
     
 
-    solve_using_partition_table_with_function_pointer(len_pegs, len_colours, [1,1,2,3], count_parts, higher_is_better, True)
+    solve_using_partition_table_with_function_pointer(len_pegs, len_colours, [1,1,1,1,1,1,2,2,2,2], return_max, lower_is_better, False)
 
     #first_round(len_pegs, len_colours)
     
