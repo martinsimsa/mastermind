@@ -59,7 +59,57 @@ def generate_all_scores(len_pegs:int):
             else:
                 all_scores.append([nb,nw])
     return all_scores
-                
+
+
+# finds maximum of current partition table (Knuth)
+def find_max(partition_table):
+    return max(partition_table)
+
+
+# finds the entropy of current partition table (Neuwirth??)
+def find_entropy(partition_table):
+    code_count = sum([partition_table[i] for i in range(len(partition_table))])
+    entropy = 0
+    for i in range(len(partition_table)):
+        if partition_table[i] != 0:
+            entropy += - partition_table[i]/code_count * np.emath.log2(partition_table[i]/code_count)
+    return entropy
+
+
+# counts the number of parts of a partition table (Kooi, 2005)
+def find_number_of_parts(partition_table):
+    len_parts = 0
+    for i in range(len(partition_table)):
+        if partition_table[i] != 0:
+            len_parts += 1
+    return len_parts
+
+
+# Function for when the strategy is to take code which minimizes valuation
+def lower_is_better(first, second):
+    if first < second:
+        return True
+    else:
+        return False
+
+
+# Function for when the strategy is to take code which maximizes valuation
+def higher_is_better(first, second):
+    if first > second:
+        return True
+    else:
+        return False
+
+
+# counts the expected number of codes after this guess (Irving 1978-1979)
+def find_expected_size(partition_table):
+    code_count =  sum([partition_table[i] for i in range(len(partition_table))])
+    expectation = 0
+    for i in range(len(partition_table)):
+        if partition_table[i] != 0:
+            expectation += partition_table[i]**2/code_count
+    return expectation
+
 
 # checks if a possible code (next_guess) belongs in the partition table to this score
 def check_code_scoreG(next_guess, next_score, secret_code, len_pegs, len_colours):
@@ -156,56 +206,6 @@ def find_best_guess(possible_codes, len_pegs, len_colours, all_scores, all_codes
                     best_partition_with_codes = partition_of_codes
     
     return best_next_guess, best_partition, best_partition_with_codes
-
-
-# finds maximum of current partition table (Knuth)
-def find_max(partition_table):
-    return max(partition_table)
-
-
-# finds the entropy of current partition table (Neuwirth??)
-def find_entropy(partition_table):
-    code_count = sum([partition_table[i] for i in range(len(partition_table))])
-    entropy = 0
-    for i in range(len(partition_table)):
-        if partition_table[i] != 0:
-            entropy += - partition_table[i]/code_count * np.emath.log2(partition_table[i]/code_count)
-    return entropy
-
-
-# counts the number of parts of a partition table (Kooi, 2005)
-def find_number_of_parts(partition_table):
-    len_parts = 0
-    for i in range(len(partition_table)):
-        if partition_table[i] != 0:
-            len_parts += 1
-    return len_parts
-
-
-# Function for when the strategy is to take code which minimizes valuation
-def lower_is_better(first, second):
-    if first < second:
-        return True
-    else:
-        return False
-
-
-# Function for when the strategy is to take code which maximizes valuation
-def higher_is_better(first, second):
-    if first > second:
-        return True
-    else:
-        return False
-
-
-# counts the expected number of codes after this guess (Irving 1978-1979)
-def find_expected_size(partition_table):
-    code_count =  sum([partition_table[i] for i in range(len(partition_table))])
-    expectation = 0
-    for i in range(len(partition_table)):
-        if partition_table[i] != 0:
-            expectation += partition_table[i]**2/code_count
-    return expectation
 
 
 # find best guess for each set of candidates and then test all 14 scores to step forward - should be faster than going through all candidates to sort them
