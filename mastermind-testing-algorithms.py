@@ -111,30 +111,17 @@ def find_expected_size(partition_table):
     return expectation
 
 
-# checks if a possible code (next_guess) belongs in the partition table to this score
-def check_code_scoreG(next_guess, next_score, secret_code, len_pegs, len_colours):
-    real_score = evaluate_codes(secret_code, next_guess, len_pegs, len_colours)
-    if real_score == next_score:
-        return True
-    else:
-        return False
-
-
-# searching from the list of all feasible codes, not all the codes
+# still need to test if it works
 def create_next_partition(next_guess, possible_codes, len_pegs, len_colours, all_scores):
     partition_table = [0]*len(all_scores)
-    partition_of_codes = []
+    partition_of_codes = [[] for i in range(len(all_scores))]
     #next_guess = transfer_int_to_code(next_guess)
 
-    # add function to return all possible scores for current game
-    for score in range(len(all_scores)):
-        partition_of_codes.append([])
-        # Count the number of codes from current list of possible codes that would work with this score
-        for code in possible_codes:
-            #secret_code = transfer_int_to_code(code)
-            if check_code_scoreG(next_guess, all_scores[score], code, len_pegs, len_colours):
-                partition_table[score] += 1
-                partition_of_codes[score].extend([code])
+    for code in possible_codes:
+        temp_score = evaluate_codes(code, next_guess, len_pegs, len_colours)
+        index_of_temp_score = all_scores.index(temp_score)
+        partition_table[index_of_temp_score] += 1
+        partition_of_codes[index_of_temp_score].append(code)
     return partition_table, partition_of_codes
 
 
@@ -295,4 +282,4 @@ if __name__ == '__main__':
 
 
     # prints valuation of certain first guess using certain valuation function
-    # print(get_valuation_of_first_guess(len_pegs, len_colours, [1,1,2,2], find_number_of_parts))
+    print(get_valuation_of_first_guess(len_pegs, len_colours, [1,1,2,2], find_number_of_parts))
