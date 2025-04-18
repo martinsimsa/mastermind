@@ -3,39 +3,6 @@ from collections import deque
 
 
 # two lists - return ohodnoceni
-def evaluate_guess_as_list(secret_code, guess, len_pegs):
-    # counting the number of white and black pegs:
-    b:int = 0
-    w:int = 0
-
-    # disabling indeces so we dont match one peg with several in the guess 
-    gind = [1]*len_pegs
-    scind = [1]*len_pegs
-   
-    # Check for exact matches
-    for i in range(len_pegs):
-        if secret_code[i] == guess[i]:
-            b = b+1
-            gind[i] = 0
-            scind[i] = 0
-    if b == len_pegs:
-        return [b,w]
-   
-    # check for 'white' matches - right color on wrong position
-    for i in range(len_pegs):
-        if gind[i]:
-            for j in range(len_pegs):
-                if i==j:
-                    continue
-                elif scind[j]:
-                    if guess[i] == secret_code[j]:
-                        w = w+1
-                        scind[j] = 0
-                        break
-    return [b,w]
-
-
-# two lists - return ohodnoceni
 def evaluate_codes(first_code, second_code, len_pegs, len_colours) -> list[int]:
     # counting the number of white and black pegs:
     b:int = 0
@@ -63,18 +30,9 @@ def evaluate_codes(first_code, second_code, len_pegs, len_colours) -> list[int]:
 
     return [b,w]
 
-def compare_both_evaluations(len_pegs, len_colours):
-    all_codes = generate_codes_repeated(len_pegs, len_colours)
-    for i in range(len_colours**len_pegs):
-        for j in range(i,len_colours**len_pegs):
-            res1 = evaluate_guess_as_list(all_codes[i],all_codes[j], len_pegs)
-            res2 = evaluate_guess_from_definition(all_codes[i], all_codes[j], len_pegs, len_colours)
-            if res1 != res2:
-                print("chyba v ", all_codes[i], all_codes[j], res1, res2)
-
 
 # generates all codes as list
-def generate_codes_repeated(len_pegs, len_colours):
+def generate_all_codes(len_pegs, len_colours):
     len_possible_codes = len_colours**len_pegs
     possible_codes = []
     for number in range(len_possible_codes):
@@ -92,7 +50,7 @@ def generate_codes_repeated(len_pegs, len_colours):
                
 
 # generates list of possible scores that can be awarded with the current count of pegs
-def create_list_of_scores(len_pegs:int):
+def generate_all_scores(len_pegs:int):
     all_scores:list[list[int]] = []
     for nb in range(len_pegs+1):
         for nw in range(len_pegs+1-nb):
@@ -105,7 +63,7 @@ def create_list_of_scores(len_pegs:int):
 
 # checks if a possible code (next_guess) belongs in the partition table to this score
 def check_code_scoreG(next_guess, next_score, secret_code, len_pegs, len_colours):
-    real_score = evaluate_guess_as_list(secret_code, next_guess, len_pegs)
+    real_score = evaluate_codes(secret_code, next_guess, len_pegs)
     if real_score == next_score:
         return True
     else:
@@ -128,103 +86,6 @@ def create_partition_tableG(next_guess, possible_codes, len_pegs, len_colours, a
                 partition_table[score] += 1
                 partition_of_codes[score].extend([code])
     return partition_table, partition_of_codes
-
-
-# finds best next guess from all codes with respect to partition table of possible codes
-def find_best_guess_minmax(possible_codes, len_pegs, len_colours, all_scores, all_codes, start_code=None):
-    min_of_max_partition = len(possible_codes)
-    best_partition:list[int] = []
-    best_next_guess = -1
-    best_partition_with_codes = []
-    
-    # if i have just one possible code, i return it
-    if len(possible_codes) == 1:
-        return possible_codes[0], best_partition, best_partition_with_codes
-    
-    # In the first iteration, if i am choosing from all codes, i choose only those that are increasing (first half)
-    if len(possible_codes) == len_colours**len_pegs:
-        temp_partition_table, partition_of_codes = create_partition_tableG(start_code, possible_codes, len_pegs, len_colours, all_scores)
-        temp_max_partition = max(temp_partition_table)
-        
-        # values I return
-        best_partition = temp_partition_table
-        best_next_guess = start_code
-        best_partition_with_codes = partition_of_codes
-
-    # in general iteration, I am choosing from all codes for the next guess
-    if len(possible_codes) == 0:
-        return [], [], []
-    
-
-    else:
-        for code in all_codes:
-            temp_partition_table, partition_of_codes = create_partition_tableG(code, possible_codes, len_pegs, len_colours, all_scores)
-            temp_max_partition = max(temp_partition_table)
-            if temp_max_partition < min_of_max_partition:
-                min_of_max_partition = temp_max_partition
-                best_partition = temp_partition_table
-                best_next_guess = code
-                best_partition_with_codes = partition_of_codes
-
-            # case when initially partition wasnt with a candidate and we want to use one
-            if temp_max_partition == min_of_max_partition and (best_next_guess not in possible_codes) and (code in possible_codes):
-                min_of_max_partition = temp_max_partition
-                best_partition = temp_partition_table
-                best_next_guess = code
-                best_partition_with_codes = partition_of_codes
-    
-    return best_next_guess, best_partition, best_partition_with_codes
-
-
-# finds best next guess from all codes with respect to partition table of possible codes
-def find_best_guess_minmax_old_version(possible_codes, len_pegs, len_colours, all_scores, all_codes, start_code=None):
-    min_of_max_partition = len(possible_codes)
-    best_partition:list[int] = []
-    best_next_guess = -1
-    best_partition_with_codes = []
-    
-    # if i have just one possible code, i return it
-    if len(possible_codes) == 1:
-        return possible_codes[0], best_partition, best_partition_with_codes
-    
-    # In the first iteration, if i am choosing from all codes, i choose only those that are increasing (first half)
-    if len(possible_codes) == len_colours**len_pegs:
-        for i in range(int(len_colours**len_pegs / len_colours)):
-            temp_partition_table, partition_of_codes = create_partition_tableG(all_codes[i], possible_codes, len_pegs, len_colours, all_scores)
-            temp_max_partition = max(temp_partition_table)
-            if temp_max_partition < min_of_max_partition:
-                min_of_max_partition = temp_max_partition
-                best_partition = temp_partition_table
-                best_next_guess = all_codes[i]
-                best_partition_with_codes = partition_of_codes
-
-
-    # in general iteration, I am choosing from all codes for the next guess
-    if len(possible_codes) == 0:
-        return [], [], []
-    
-
-    else:
-        for code in all_codes:
-            temp_partition_table, partition_of_codes = create_partition_tableG(code, possible_codes, len_pegs, len_colours, all_scores)
-            temp_max_partition = max(temp_partition_table)
-            if temp_max_partition < min_of_max_partition:
-                min_of_max_partition = temp_max_partition
-                best_partition = temp_partition_table
-                best_next_guess = code
-                best_partition_with_codes = partition_of_codes
-
-            # case when initially partition wasnt with a candidate and we want to use one
-            if temp_max_partition == min_of_max_partition and (best_next_guess not in possible_codes) and (code in possible_codes):
-                min_of_max_partition = temp_max_partition
-                best_partition = temp_partition_table
-                best_next_guess = code
-                best_partition_with_codes = partition_of_codes
-    
-    return best_next_guess, best_partition, best_partition_with_codes
-    # In the first iteration, if i am choosing from all codes, i choose only those that are increasing (first half)
-    
-
 
 
 # finds best next guess from all codes with respect to partition table of possible codes
@@ -297,7 +158,12 @@ def find_best_guess_with_function(possible_codes, len_pegs, len_colours, all_sco
     return best_next_guess, best_partition, best_partition_with_codes
 
 
-# finds the entropy of current partition table
+# finds maximum of current partition table (Knuth)
+def find_max(partition_table):
+    return max(partition_table)
+
+
+# finds the entropy of current partition table (Neuwirth??)
 def find_entropy(partition_table):
     code_count = sum([partition_table[i] for i in range(len(partition_table))])
     entropy = 0
@@ -316,10 +182,7 @@ def count_parts(partition_table):
     return len_parts
 
 
-def return_max(partition_table):
-    return max(partition_table)
-
-
+# Function for when the strategy is to take code which minimizes valuation
 def lower_is_better(first, second):
     if first < second:
         return True
@@ -327,6 +190,7 @@ def lower_is_better(first, second):
         return False
 
 
+# Function for when the strategy is to take code which maximizes valuation
 def higher_is_better(first, second):
     if first > second:
         return True
@@ -360,8 +224,8 @@ def first_round(len_pegs, len_colours):
     start_codes[3] = [2,2]
     start_codes[4] = [2,2]
     
-    all_scores = create_list_of_scores(len_pegs)
-    all_codes = generate_codes_repeated(len_pegs, len_colours)
+    all_scores = generate_all_scores(len_pegs)
+    all_codes = generate_all_codes(len_pegs, len_colours)
     max_candidates = [0]*5
     partition_entropy = [0]*5
     expected_num_of_candidates = [0]*5
@@ -385,8 +249,8 @@ def first_round(len_pegs, len_colours):
 def second_round(len_pegs, len_colours, start_code):
     len_codes = len_colours**len_pegs
     
-    all_scores = create_list_of_scores(len_pegs)
-    all_codes = generate_codes_repeated(len_pegs, len_colours)
+    all_scores = generate_all_scores(len_pegs)
+    all_codes = generate_all_codes(len_pegs, len_colours)
     #max_candidates = [0]*2
     #partition_entropy = [0]*2
     #expected_num_of_candidates = [0]*2
@@ -400,7 +264,7 @@ def second_round(len_pegs, len_colours, start_code):
 
     for score in range(len(all_scores)):
         #prints all partition tables
-        return_all_partition_tables(len_pegs, len_colours, all_codes, first_partition[score], return_max)
+        return_all_partition_tables(len_pegs, len_colours, all_codes, first_partition[score], find_max)
         second_guesses[score], temp_partition_table, temp_partition = find_best_guess_minmax(first_partition[score], len_pegs, len_colours, all_scores, all_codes)
         second_partition_tables.append(temp_partition_table)
         second_partitions.append(temp_partition)
@@ -415,8 +279,8 @@ def second_round(len_pegs, len_colours, start_code):
 def three_rounds(len_pegs, len_colours, start_code):
     len_codes = len_colours**len_pegs
     
-    all_scores = create_list_of_scores(len_pegs)
-    all_codes = generate_codes_repeated(len_pegs, len_colours)
+    all_scores = generate_all_scores(len_pegs)
+    all_codes = generate_all_codes(len_pegs, len_colours)
     #max_candidates = [0]*2
     #partition_entropy = [0]*2
     #expected_num_of_candidates = [0]*2
@@ -470,7 +334,7 @@ def three_rounds(len_pegs, len_colours, start_code):
 
 # function used for the small case 2,3 mastermind. 
 def return_all_partition_tables(len_pegs, len_colours, all_codes, candidates, partition_table_function):
-    all_scores = create_list_of_scores(len_pegs)
+    all_scores = generate_all_scores(len_pegs)
     partition_tables_values = [0]*len(all_codes)
     for i in range(len(all_codes)):
         temp_partition_table, temp_partition = create_partition_tableG(all_codes[i], candidates, len_pegs, len_colours, all_scores)
@@ -478,72 +342,12 @@ def return_all_partition_tables(len_pegs, len_colours, all_codes, candidates, pa
     print(partition_tables_values)
 
 
-
-# find best guess for each set of candidates and then test all 14 scores to step forward - should be faster than going through all candidates to sort them
-def solve_using_partition_table(len_pegs, len_colours, start_code):
-    len_codes = len_colours**len_pegs
-    
-    all_scores = create_list_of_scores(len_pegs)
-    all_codes = generate_codes_repeated(len_pegs, len_colours)
-
-    partition_queue = deque()
-    partition_table_queue = deque()
-    # chtěl bych do fronty zařadit množinu kandidátů, která reprezentuje stav, počet odehraných pokusů
-    # do další iterace zjistím pro každé skore další možnou množinu kandidátů a počet odehraných pokusů zvýším o jeden.
-
-    max_len_guesses = 0
-    all_len_guesses = [0]*10
-
-    first_partition_table, first_partition = create_partition_tableG(start_code, all_codes, len_pegs, len_colours, all_scores)
-    for i in range(len(first_partition_table)):
-        if first_partition_table[i] == 0:
-            continue
-        # in case we hit the right code
-        if all_scores[i] == [len_pegs,0] and first_partition_table[i] == 1:
-            max_len_guesses = 1
-            all_len_guesses[1] += 1
-        else:
-            partition_queue.append([first_partition[i],1])
-
-    
-    while partition_queue:
-        # hled8m do sirky a tedy pop je na druhe strane nez append
-        temp_candidates, temp_len_guesses = partition_queue.pop()
-        # If there is just one candidate left
-        if len(temp_candidates) == 1:
-            # add the number of tries (temp len tries) to our list and compare with database of len of tries
-            max_len_guesses = max(max_len_guesses, temp_len_guesses + 1)
-            all_len_guesses[temp_len_guesses + 1] += 1
-            if temp_len_guesses + 1 == 6:
-                print(temp_candidates)
-        else:
-            temp_guess, temp_partition_table, temp_partition = find_best_guess_minmax(temp_candidates, len_pegs, len_colours, all_scores, all_codes)
-        
-            for i in range(len(temp_partition_table)):
-                if temp_partition_table[i] == 0:
-                    continue
-                # If we got the right code in this round
-                if all_scores[i] == [len_pegs,0] and temp_partition_table[i] == 1:
-                    max_len_guesses = max(max_len_guesses, temp_len_guesses + 1)
-                    all_len_guesses[temp_len_guesses+1] += 1
-                    if temp_len_guesses + 1 == 6:
-                        print(temp_partition)
-
-                else:
-                    partition_queue.append([temp_partition[i], temp_len_guesses + 1])
-
-
-    print(max_len_guesses)
-    print(all_len_guesses)
-    print(sum([i*all_len_guesses[i] for i in range(len(all_len_guesses))]) / len_codes)
-
-
 # find best guess for each set of candidates and then test all 14 scores to step forward - should be faster than going through all candidates to sort them
 def solve_using_partition_table_with_function_pointer(len_pegs, len_colours, start_code, partition_table_function, compare_function, choose_from_candidates):
     len_codes = len_colours**len_pegs
     
-    all_scores = create_list_of_scores(len_pegs)
-    all_codes = generate_codes_repeated(len_pegs, len_colours)
+    all_scores = generate_all_scores(len_pegs)
+    all_codes = generate_all_codes(len_pegs, len_colours)
 
     partition_queue = deque()
     partition_table_queue = deque()
@@ -598,7 +402,6 @@ def solve_using_partition_table_with_function_pointer(len_pegs, len_colours, sta
 
 
 if __name__ == '__main__':
-    # find_best_guess([i for i in range(6**4)])
     len_pegs = 4
     len_colours = 6
     #print(all_scores)
@@ -619,16 +422,16 @@ if __name__ == '__main__':
     #print([1,1,1,1])
     #solve_using_partition_table_with_function_pointer(len_pegs, len_colours, [1,1,1,1], count_parts, higher_is_better)
     #play_minmax_46_set_code_set_start(len_pegs, len_colours, [5,2,3,2])
-    #return_all_partition_tables(len_pegs, len_colours, generate_codes_repeated(len_pegs, len_colours), [[2,3],[3,2]], return_max)
+    #return_all_partition_tables(len_pegs, len_colours, generate_all_codes(len_pegs, len_colours), [[2,3],[3,2]], find_max)
     
     
 
-    # solve_using_partition_table_with_function_pointer(len_pegs, len_colours, [1,1,1,1,1,1,2,2,2,2], return_max, lower_is_better, False)
+    # solve_using_partition_table_with_function_pointer(len_pegs, len_colours, [1,1,1,1,1,1,2,2,2,2], find_max, lower_is_better, False)
 
     #first_round(len_pegs, len_colours)
     
-    """all_codes = generate_codes_repeated(len_pegs, len_colours)
-    all_scores = create_list_of_scores(len_pegs)
+    """all_codes = generate_all_codes(len_pegs, len_colours)
+    all_scores = generate_all_scores(len_pegs)
     result = find_best_guess_minmax_old_version(all_codes, len_pegs, len_colours, all_scores, all_codes)
     print(result)"""
     
@@ -642,4 +445,3 @@ if __name__ == '__main__':
     solve_using_partition_table_with_function_pointer(len_pegs, len_colours, [1,2,3,4], find_expected_size, lower_is_better)"""
     
 
-    compare_both_evaluations(len_pegs, len_colours)
