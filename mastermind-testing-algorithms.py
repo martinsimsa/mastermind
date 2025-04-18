@@ -1,16 +1,5 @@
 import numpy as np
 from collections import deque
-### Possible improvements ###
-# add function that compares partition tables using a pointer to a comparing function
-# Use Hamming code for 7,2 Mastermind???
-
-#class State:
- #   def __init__(self, rounds, ):
-  #      self.name = name
-   #     self.age = age
-
-
-
 
 
 # two lists - return ohodnoceni
@@ -44,6 +33,44 @@ def evaluate_guess_as_list(secret_code, guess, len_pegs):
                         scind[j] = 0
                         break
     return [b,w]
+
+
+# two lists - return ohodnoceni
+def evaluate_codes(first_code, second_code, len_pegs, len_colours) -> list[int]:
+    # counting the number of white and black pegs:
+    b:int = 0
+    w:int = 0
+
+    # disabling indeces so we dont match one peg with several in the guess 
+    first_code_colours = [0]*(len_colours)
+    second_code_colours = [0]*(len_colours)
+   
+    # Check for exact matches and find counts of colours
+    for i in range(len_pegs):
+        first_code_colours[first_code[i]-1] += 1
+        second_code_colours[second_code[i]-1] += 1
+        if first_code[i] == second_code[i]:
+            b = b+1
+
+    # return n,0 if b = n
+    if b == len_pegs:
+        return [b,w]
+    
+    # find the number of white pegs
+    w = -b
+    for i in range(len_colours):
+        w += min(first_code_colours[i],second_code_colours[i])
+
+    return [b,w]
+
+def compare_both_evaluations(len_pegs, len_colours):
+    all_codes = generate_codes_repeated(len_pegs, len_colours)
+    for i in range(len_colours**len_pegs):
+        for j in range(i,len_colours**len_pegs):
+            res1 = evaluate_guess_as_list(all_codes[i],all_codes[j], len_pegs)
+            res2 = evaluate_guess_from_definition(all_codes[i], all_codes[j], len_pegs, len_colours)
+            if res1 != res2:
+                print("chyba v ", all_codes[i], all_codes[j], res1, res2)
 
 
 # generates all codes as list
@@ -572,8 +599,8 @@ def solve_using_partition_table_with_function_pointer(len_pegs, len_colours, sta
 
 if __name__ == '__main__':
     # find_best_guess([i for i in range(6**4)])
-    len_pegs = 10
-    len_colours = 2
+    len_pegs = 4
+    len_colours = 6
     #print(all_scores)
     #print(len(all_scores))
     #play_minmaxG(len_pegs, len_colours)
@@ -596,7 +623,7 @@ if __name__ == '__main__':
     
     
 
-    solve_using_partition_table_with_function_pointer(len_pegs, len_colours, [1,1,1,1,1,1,2,2,2,2], return_max, lower_is_better, False)
+    # solve_using_partition_table_with_function_pointer(len_pegs, len_colours, [1,1,1,1,1,1,2,2,2,2], return_max, lower_is_better, False)
 
     #first_round(len_pegs, len_colours)
     
@@ -614,3 +641,5 @@ if __name__ == '__main__':
     print([1,2,3,4])
     solve_using_partition_table_with_function_pointer(len_pegs, len_colours, [1,2,3,4], find_expected_size, lower_is_better)"""
     
+
+    compare_both_evaluations(len_pegs, len_colours)
