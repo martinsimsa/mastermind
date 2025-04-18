@@ -36,9 +36,17 @@ Tato funkce slouží na místo strategie. Porovnává hodnoty valuací a vrací 
 
 ------------------------------------------------------------ Find expected size - doplnit nebo vymazat ---- ------------------------------------------------------
 
+#### create_next_partition
+Tato funkce bere jako argumenty množinu kandidátů K (possible codes) a další pokus u. Vrátí počty prvků v potomcích K_{u,r} pro všechna ohodnocení r.
 
+#### find_best_guess
+Tato funkce pro aktuální stav a zvolenou valuaci a strategii vrátí odpovídající další pokus. 
 
+#### get_results_of_algorithm
+Toto je hlavní funkce, která testuje algoritmy. Prochází stavový prostor a pro každý stav nalezne další pokus. Počty pokusů přičítá v případě, kdy zkoumá potomka s ohodnocením (len_pegs,0)
 
+#### get_valuation_of_first_guess
+Tato funkce vrátí hodnotu valuace pro nějaký první pokus a zadanou valuaci. 
 
 ## main_function
 
@@ -46,7 +54,14 @@ Tato funkce slouží na místo strategie. Porovnává hodnoty valuací a vrací 
 
 
 
-## global variables
+## globální proměnné
+len_pegs - tato proměnná označuje počet pozic, v práci tuto hodnotu značíme písmenem n.
+len_colours - tato hodnota určuje počet barev (v práci jako k).
+all_scores - seznam všech ohodnocení v H_{n,k}
+all_codes - seznam všech kódů H_{n,k}
+start_code - volba prvního pokusu, aby algoritmus nemusel procházet všechny kódy
+possible_codes - Množina kandidátů aktuálního stavu.
+
 
 
 

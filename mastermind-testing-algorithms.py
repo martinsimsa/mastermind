@@ -111,7 +111,7 @@ def find_expected_size(partition_table):
     return expectation
 
 
-# still need to test if it works
+# still need to test if it works properly
 def create_next_partition(next_guess, possible_codes, len_pegs, len_colours, all_scores):
     partition_table = [0]*len(all_scores)
     partition_of_codes = [[] for i in range(len(all_scores))]
@@ -230,8 +230,9 @@ def get_results_of_algorithm(len_pegs, len_colours, start_code, partition_table_
             # add the number of tries (temp len tries) to our list and compare with database of len of tries
             max_len_guesses = max(max_len_guesses, temp_len_guesses + 1)
             all_len_guesses[temp_len_guesses + 1] += 1
-            if temp_len_guesses + 1 == 6:
-                print(temp_candidates)
+            # just to check which secret codes result in six tries
+            #if temp_len_guesses + 1 == 6:
+             #   print(temp_candidates)
         else:
             temp_guess, temp_partition_table, temp_partition = find_best_guess(temp_candidates, len_pegs, len_colours, all_scores, all_codes, partition_table_function, compare_function, choose_from_candidates=choose_from_candidates)
         
@@ -258,9 +259,11 @@ def get_results_of_algorithm(len_pegs, len_colours, start_code, partition_table_
         print('Použitý algoritmus: Max parts')
     elif partition_table_function == find_expected_size:
         print('Použitý algoritmus: Expected size')
+    print("První pokus byl:", start_code)
     print("Maximální počet pokusů je: ", max_len_guesses)
-    print("Počty tajných kódů s odpovídajícím počtem potřebných pokusů k prolomení: ", all_len_guesses)
     print("Průměrný počet pokusů je: ", sum([i*all_len_guesses[i] for i in range(len(all_len_guesses))]) / len_codes)
+    print("Počty tajných kódů s odpovídajícím počtem potřebných pokusů k prolomení: ", all_len_guesses)
+    
 
 
 # function that returns valuation of a first guess with a valuation function as a parameter
@@ -278,8 +281,8 @@ if __name__ == '__main__':
     len_colours = 6
     
 
-    # get_results_of_algorithm(len_pegs, len_colours, [1,2,2,2], find_max, lower_is_better, False)
+    get_results_of_algorithm(len_pegs, len_colours, [1,1,2,2], find_entropy, higher_is_better, False)
 
 
     # prints valuation of certain first guess using certain valuation function
-    print(get_valuation_of_first_guess(len_pegs, len_colours, [1,1,2,2], find_number_of_parts))
+    # print(get_valuation_of_first_guess(len_pegs, len_colours, [1,1,2,2], find_number_of_parts))
