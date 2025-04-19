@@ -87,6 +87,7 @@ def find_entropy_2(partition_table):
     for i in range(len(partition_table)):
         if partition_table[i] != 0:
             entropy += partition_table[i]/code_count * np.emath.logn(13,code_count/partition_table[i])
+    
     return entropy
 
 
@@ -247,6 +248,94 @@ def find_best_guess(possible_codes, len_pegs, len_colours, all_scores, all_codes
     return best_next_guess, best_partition, best_partition_with_codes
 
 
+# finds best next guess from all codes with respect to partition table of possible codes
+def find_best_guess_2(possible_codes, len_pegs, len_colours, all_scores, all_codes, partition_table_function, compare_function, start_code=None, choose_from_candidates=False):
+    # set initial value according to what we are looking for in the compare function
+    if compare_function == higher_is_better:
+        best_partition_table_value = -1
+    else:
+        best_partition_table_value = len(possible_codes)
+    best_partition:list[int] = []
+    best_next_guess = -1
+    best_partition_with_codes = []
+    
+    # if i have just one possible code, i return it
+    if len(possible_codes) == 1:
+        return possible_codes[0], best_partition, best_partition_with_codes
+    
+    # In the first iteration, if i am choosing from all codes, i choose the start code if assigned
+    elif len(possible_codes) == len_colours**len_pegs:
+        if start_code != None:
+            temp_partition_table, partition_of_codes = create_next_partition(start_code, possible_codes, len_pegs, len_colours, all_scores)
+            temp_partition_table_value = find_entropy_2(temp_partition_table)
+            
+            # values I return
+            best_partition = temp_partition_table
+            best_next_guess = start_code
+            best_partition_with_codes = partition_of_codes
+        else:
+            for code in all_codes:
+                temp_partition_table, partition_of_codes = create_next_partition(code, possible_codes, len_pegs, len_colours, all_scores)
+                temp_partition_table_value = find_entropy_2(temp_partition_table)
+                # compare function returns true if first argument is better than the second one, in this case, we compare temp value to current best value
+                if compare_function(temp_partition_table_value, best_partition_table_value):
+                    best_partition_table_value = temp_partition_table_value
+                    best_partition = temp_partition_table
+                    best_next_guess = code
+                    best_partition_with_codes = partition_of_codes
+
+                # case when initially partition wasnt with a candidate and we want to use one
+                if temp_partition_table_value == best_partition_table_value and (best_next_guess not in possible_codes) and (code in possible_codes):
+                    best_partition_table_value = temp_partition_table_value
+                    best_partition = temp_partition_table
+                    best_next_guess = code
+                    best_partition_with_codes = partition_of_codes
+
+    # useful in certain cases
+    elif len(possible_codes) == 0:
+        return [], [], []
+    
+    # in general iteration, I am choosing from all codes for the next guess
+    else:
+        if choose_from_candidates == False:
+            for code in all_codes:
+                temp_partition_table, partition_of_codes = create_next_partition(code, possible_codes, len_pegs, len_colours, all_scores)
+                temp_partition_table_value = find_entropy_2(temp_partition_table)
+                # compare function returns true if first argument is better than the second one, in this case, we compare temp value to current best value
+                if compare_function(temp_partition_table_value, best_partition_table_value):
+                    best_partition_table_value = temp_partition_table_value
+                    best_partition = temp_partition_table
+                    best_next_guess = code
+                    best_partition_with_codes = partition_of_codes
+
+                # case when initially partition wasnt with a candidate and we want to use one
+                if temp_partition_table_value == best_partition_table_value and (best_next_guess not in possible_codes) and (code in possible_codes):
+                    best_partition_table_value = temp_partition_table_value
+                    best_partition = temp_partition_table
+                    best_next_guess = code
+                    best_partition_with_codes = partition_of_codes
+                    
+        if choose_from_candidates == True:
+            for code in possible_codes:
+                temp_partition_table, partition_of_codes = create_next_partition(code, possible_codes, len_pegs, len_colours, all_scores)
+                temp_partition_table_value = find_entropy_2(temp_partition_table)
+                # compare function returns true if first argument is better than the second one, in this case, we compare temp value to current best value
+                if compare_function(temp_partition_table_value, best_partition_table_value):
+                    best_partition_table_value = temp_partition_table_value
+                    best_partition = temp_partition_table
+                    best_next_guess = code
+                    best_partition_with_codes = partition_of_codes
+
+                # case when initially partition wasnt with a candidate and we want to use one
+                if temp_partition_table_value == best_partition_table_value and (best_next_guess not in possible_codes) and (code in possible_codes):
+                    best_partition_table_value = temp_partition_table_value
+                    best_partition = temp_partition_table
+                    best_next_guess = code
+                    best_partition_with_codes = partition_of_codes
+    
+    return best_next_guess, best_partition, best_partition_with_codes
+
+
 # find best guess for each set of candidates and then test all 14 scores to step forward - should be faster than going through all candidates to sort them
 def get_results_of_algorithm(len_pegs, len_colours, start_code, partition_table_function, compare_function, choose_from_candidates):
     len_codes = len_colours**len_pegs
@@ -287,7 +376,10 @@ def get_results_of_algorithm(len_pegs, len_colours, start_code, partition_table_
              #   print(temp_candidates)
         else:
             temp_guess, temp_partition_table, temp_partition = find_best_guess(temp_candidates, len_pegs, len_colours, all_scores, all_codes, partition_table_function, compare_function, choose_from_candidates=choose_from_candidates)
-        
+            temp_guess_2, temp_partition_table_2, temp_partition_2 = find_best_guess_2(temp_candidates, len_pegs, len_colours, all_scores, all_codes, partition_table_function, compare_function, choose_from_candidates=choose_from_candidates)
+            if temp_guess != temp_guess_2:
+                print(temp_partition_table, temp_guess)
+                print(temp_partition_table_2, temp_guess_2)
             for i in range(len(temp_partition_table)):
                 if temp_partition_table[i] == 0:
                     continue
