@@ -140,18 +140,36 @@ def find_best_guess(possible_codes, len_pegs, len_colours, all_scores, all_codes
     if len(possible_codes) == 1:
         return possible_codes[0], best_partition, best_partition_with_codes
     
-    # In the first iteration, if i am choosing from all codes, i choose the start code assigned
-    if len(possible_codes) == len_colours**len_pegs:
-        temp_partition_table, partition_of_codes = create_next_partition(start_code, possible_codes, len_pegs, len_colours, all_scores)
-        temp_partition_table_value = partition_table_function(temp_partition_table)
-        
-        # values I return
-        best_partition = temp_partition_table
-        best_next_guess = start_code
-        best_partition_with_codes = partition_of_codes
+    # In the first iteration, if i am choosing from all codes, i choose the start code if assigned
+    elif len(possible_codes) == len_colours**len_pegs:
+        if start_code != None:
+            temp_partition_table, partition_of_codes = create_next_partition(start_code, possible_codes, len_pegs, len_colours, all_scores)
+            temp_partition_table_value = partition_table_function(temp_partition_table)
+            
+            # values I return
+            best_partition = temp_partition_table
+            best_next_guess = start_code
+            best_partition_with_codes = partition_of_codes
+        else:
+            for code in all_codes:
+                temp_partition_table, partition_of_codes = create_next_partition(code, possible_codes, len_pegs, len_colours, all_scores)
+                temp_partition_table_value = partition_table_function(temp_partition_table)
+                # compare function returns true if first argument is better than the second one, in this case, we compare temp value to current best value
+                if compare_function(temp_partition_table_value, best_partition_table_value):
+                    best_partition_table_value = temp_partition_table_value
+                    best_partition = temp_partition_table
+                    best_next_guess = code
+                    best_partition_with_codes = partition_of_codes
+
+                # case when initially partition wasnt with a candidate and we want to use one
+                if temp_partition_table_value == best_partition_table_value and (best_next_guess not in possible_codes) and (code in possible_codes):
+                    best_partition_table_value = temp_partition_table_value
+                    best_partition = temp_partition_table
+                    best_next_guess = code
+                    best_partition_with_codes = partition_of_codes
 
     # useful in certain cases
-    if len(possible_codes) == 0:
+    elif len(possible_codes) == 0:
         return [], [], []
     
     # in general iteration, I am choosing from all codes for the next guess
@@ -265,6 +283,27 @@ def get_results_of_algorithm(len_pegs, len_colours, start_code, partition_table_
     print("Počty tajných kódů s odpovídajícím počtem potřebných pokusů k prolomení: ", all_len_guesses)
     
 
+# function that takes secret code and chosen method and runs the algorithm in this setting
+def solve_one_game(len_pegs, len_colours, secret_code, partition_table_function, compare_function, start_code, choose_from_candidates):
+    all_codes = generate_all_codes(len_pegs, len_colours)
+    all_scores = generate_all_scores(len_pegs)
+    code_guessed = False
+    possible_codes = all_codes
+    len_guesses = 0
+    while not code_guessed:
+        next_guess, next_partition, best_partition_with_codes = find_best_guess(possible_codes, len_pegs, len_colours, all_scores, all_codes, partition_table_function, compare_function, start_code, choose_from_candidates)
+        b,w = evaluate_codes(secret_code, next_guess, len_pegs, len_colours)
+        print(next_guess, b, w)
+        len_guesses +=1
+        if b == len_pegs:
+            #print(''.join([str(i) for i in transfer_int_to_codeG(next_guess, len_colours, len_pegs)]), ''.join([str(i) for i in transfer_int_to_codeG(secret_code, len_colours, len_pegs)]), len_guesses)
+            code_guessed = True
+        else:
+            next_score = all_scores.index([b,w])
+            possible_codes = best_partition_with_codes[next_score]
+            #print(''.join([str(i) for i in transfer_int_to_codeG(next_guess, len_colours, len_pegs)]), b,w)
+    return len_guesses
+
 
 # function that returns valuation of a first guess with a valuation function as a parameter
 def get_valuation_of_first_guess(len_pegs, len_colours, start_code, partition_table_function):    
@@ -281,7 +320,9 @@ if __name__ == '__main__':
     len_colours = 6
     
 
-    get_results_of_algorithm(len_pegs, len_colours, [1,1,2,2], find_entropy, higher_is_better, False)
+    # get_results_of_algorithm(len_pegs, len_colours, [1,1,2,2], find_entropy, higher_is_better, False)
+
+    solve_one_game(len_pegs, len_colours, [2,5,3,3], find_max, lower_is_better, [1,1,2,2], False)
 
 
     # prints valuation of certain first guess using certain valuation function
