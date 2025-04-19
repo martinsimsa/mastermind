@@ -45,6 +45,15 @@ Tato funkce pro aktuální stav a zvolenou valuaci a strategii vrátí odpovída
 #### get_results_of_algorithm
 Toto je hlavní funkce, která testuje algoritmy. Prochází stavový prostor a pro každý stav nalezne další pokus. Počty pokusů přičítá v případě, kdy zkoumá potomka s ohodnocením (len_pegs,0)
 
+
+#### solve_one_game
+Tato funkce je implementací algoritmu 1 v bakalářské práci. Na vstupu vezme počet pozic a barev, tajný kód, valuaci, strategii, případný pevně stanovený první pokus a True/False hodnotu, jestli se další pokus vybírá pouze z kandidátů. 
+
+Z důvodu zrychlení algoritmu je průběžný nejlepší další pokus uchováván v průběhu prohledávání všech kódů jako dalšího pokračování. Díky tomu, že další pokus je vybírán jako lexikograficky nejmenší kód, který minimalizuje/maximalizuje valuaci, stačí si uchovávat vždy aktuální nejlepší hodnotu a fakt, jestli je aktuálně nejlepší kód kandidátem. 
+
+Pokud další pokus dostal maximální ohodnocení, shoduje se s tajným kódem a hra končí. 
+
+
 #### get_valuation_of_first_guess
 Tato funkce vrátí hodnotu valuace pro nějaký první pokus a zadanou valuaci. 
 

@@ -70,9 +70,31 @@ def find_max(partition_table):
 def find_entropy(partition_table):
     code_count = sum([partition_table[i] for i in range(len(partition_table))])
     entropy = 0
+
+    
     for i in range(len(partition_table)):
         if partition_table[i] != 0:
-            entropy += - partition_table[i]/code_count * np.emath.log2(partition_table[i]/code_count)
+            entropy += - partition_table[i]/code_count * np.emath.logn(15,partition_table[i]/code_count)
+    return entropy
+
+
+# finds the entropy of current partition table (Neuwirth??)
+def find_entropy_experimental(partition_table):
+    code_count = sum([partition_table[i] for i in range(len(partition_table))])
+    entropy = 0
+
+    len_parts = 0
+    for i in range(len(partition_table)):
+        if partition_table[i] != 0:
+            len_parts += 1
+
+    
+    for i in range(len(partition_table)):
+        if partition_table[i] != 0:
+            if len_parts > 1:
+                entropy += - partition_table[i]/code_count * np.emath.logn(len_parts,partition_table[i]/code_count)
+            else:
+                entropy += - partition_table[i]/code_count * np.emath.logn(2,partition_table[i]/code_count)
     return entropy
 
 
@@ -261,8 +283,9 @@ def get_results_of_algorithm(len_pegs, len_colours, start_code, partition_table_
                 if all_scores[i] == [len_pegs,0] and temp_partition_table[i] == 1:
                     max_len_guesses = max(max_len_guesses, temp_len_guesses + 1)
                     all_len_guesses[temp_len_guesses+1] += 1
-                    if temp_len_guesses + 1 == 6:
-                        print(temp_partition)
+                    # just to check which secret codes result in six tries
+                    #if temp_len_guesses + 1 == 6:
+                     #   print(temp_partition)
 
                 else:
                     partition_queue.append([temp_partition[i], temp_len_guesses + 1])
@@ -290,18 +313,17 @@ def solve_one_game(len_pegs, len_colours, secret_code, partition_table_function,
     code_guessed = False
     possible_codes = all_codes
     len_guesses = 0
-    while not code_guessed:
+    score = [0,0]
+    while score != [len_pegs,0]:
+        len_guesses +=1
         next_guess, next_partition, best_partition_with_codes = find_best_guess(possible_codes, len_pegs, len_colours, all_scores, all_codes, partition_table_function, compare_function, start_code, choose_from_candidates)
         b,w = evaluate_codes(secret_code, next_guess, len_pegs, len_colours)
         print(next_guess, b, w)
-        len_guesses +=1
-        if b == len_pegs:
-            #print(''.join([str(i) for i in transfer_int_to_codeG(next_guess, len_colours, len_pegs)]), ''.join([str(i) for i in transfer_int_to_codeG(secret_code, len_colours, len_pegs)]), len_guesses)
-            code_guessed = True
-        else:
-            next_score = all_scores.index([b,w])
-            possible_codes = best_partition_with_codes[next_score]
-            #print(''.join([str(i) for i in transfer_int_to_codeG(next_guess, len_colours, len_pegs)]), b,w)
+        score = [b,w]
+        # assign next list of candidates if needed
+        if score != [len_pegs,0]:
+            score_index = all_scores.index([b,w])
+            possible_codes = best_partition_with_codes[score_index]            
     return len_guesses
 
 
@@ -320,9 +342,9 @@ if __name__ == '__main__':
     len_colours = 6
     
 
-    # get_results_of_algorithm(len_pegs, len_colours, [1,1,2,2], find_entropy, higher_is_better, False)
+    get_results_of_algorithm(len_pegs, len_colours, [1,1,2,2], find_entropy, higher_is_better, False)
 
-    solve_one_game(len_pegs, len_colours, [2,5,3,3], find_max, lower_is_better, [1,1,2,2], False)
+    # solve_one_game(len_pegs, len_colours, [2,5,3,3], find_max, lower_is_better, [1,1,2,2], False)
 
 
     # prints valuation of certain first guess using certain valuation function
