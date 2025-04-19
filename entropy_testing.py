@@ -75,7 +75,7 @@ def find_entropy(partition_table):
     for i in range(len(partition_table)):
         if partition_table[i] != 0:
             entropy += partition_table[i]/code_count * np.emath.logn(2,code_count/partition_table[i])
-    return entropy
+    return np.round(entropy, 7)
 
 
 # finds the entropy of current partition table (Neuwirth??)
@@ -86,9 +86,9 @@ def find_entropy_2(partition_table):
     
     for i in range(len(partition_table)):
         if partition_table[i] != 0:
-            entropy += partition_table[i]/code_count * np.emath.logn(13,code_count/partition_table[i])
+            entropy += partition_table[i]/code_count * np.emath.logn(5,code_count/partition_table[i])
     
-    return entropy
+    return np.round(entropy, 7)
 
 
 # finds the entropy of current partition table (Neuwirth??)
