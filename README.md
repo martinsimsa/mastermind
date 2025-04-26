@@ -1,6 +1,7 @@
 
 # Mastermind testovani
-Mastermind testování je program, jehož hlavním cílem je testování jednokrokových algoritmů řešící hru [n,k]-Mastermind.
+Mastermind testování je program, jehož hlavním cílem je testování jednokrokových algoritmů řešící hru [n,k]-Mastermind. V této dokumentaci používám značení ze své bakalářské práce s názvem Logik - algoritmy a strategie dostupné z https://github.com/martinsimsa/Bachelor-thesis-Mastermind.git
+
 
 ## Table of contents
 - [Contains](#contains)
@@ -34,6 +35,7 @@ gh repo clone martinsimsa/mastermind
 a) Program běží v jazyce Python
 - https://www.python.org/downloads/
 - případně lze využít nějaký online python compiler
+    - např. https://www.online-python.com/
 
 b) Část deque z knihovny collections
 - součástí standardního balíčku pythonu
@@ -44,8 +46,48 @@ c) Numpy
 
 ## Použití
 
-### Prerequisites
-1. In your .omap file, add precisely one start triangle (code 701) and one finish double circle (706). If desired, add at most one midpoint circle (703). [1]
+### Funkce get_results_of_algorithm
+Tato funkce slouží k analýze algoritmu složeného z valuace a strategie.
+
+
+Tvar volání funkce je následující:
+get_results_of_algorithm(n, k, první tah, valuace, strategie, výběr z kandidátů)
+n - počet pozic
+k - počet barev
+první tah - pevně zvolený první tah, např pro n = 4, k = 6 [1,1,2,3]
+valuace - použitá valuace
+strategie - použitá strategie
+výběr z kandidátů - True - algoritmus vybírá pouze z kandidátů, False - algoritmus vybírá ze všech kódů
+
+
+Přípustné kombinace valuace a strategie:
+find_max, lower_is_better - algoritmus Min-max
+find_entropy, higher_is_better - algoritmus Max entropy
+find_number_of_parts, higher_is_better - algoritmus Most parts
+
+Příklad použití:
+get_results_of_algorithm(4, 6, [1,1,2,2], find_entropy, higher_is_better, False)
+
+### Funkce solve_one_game
+Funkce solve_one_game slouží ke spuštění daného algoritmu pro jeden pevně určený tajný kód. 
+
+solve_one_game(n, k, tajný kód, valuace, strategie, první tah, výběr z kandidátů)
+n - počet pozic
+k - počet barev
+tajný kód - tajný kód ve tvaru seznamu, např pro n = 4, k = 6 [5,1,6,3]
+valuace - použitá valuace
+strategie - použitá strategie
+první tah - pevně zvolený první tah, např pro n = 4, k = 6 [1,1,2,3]
+výběr z kandidátů - True - algoritmus vybírá pouze z kandidátů, False - algoritmus vybírá ze všech kódů
+
+Přípustné kombinace valuace a strategie stejná jako výše:
+find_max, lower_is_better - algoritmus Min-max
+find_entropy, higher_is_better - algoritmus Max entropy
+find_number_of_parts, higher_is_better - algoritmus Most parts
+
+příklad použití:
+solve_one_game(4, 6, [5,1,6,3], find_max, lower_is_better, [1,1,2,2], False)
+
 
 
 ### Steps

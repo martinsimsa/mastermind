@@ -3,7 +3,7 @@ from collections import deque
 
 
 # two lists - return ohodnoceni
-def evaluate_codes(first_code, second_code, len_pegs, len_colours) -> list[int]:
+def evaluate_codes(first_code, second_code, len_pegs, len_colours):
     # counting the number of white and black pegs:
     b:int = 0
     w:int = 0
@@ -85,6 +85,27 @@ def find_number_of_parts(partition_table):
         if partition_table[i] != 0:
             len_parts += 1
     return len_parts
+
+
+def find_two_step_valuation(partition_with_codes, len_pegs, len_colours, all_scores, all_codes, partition_table_function, compare_function):
+    two_step_valuation = 0
+    
+    for child in partition_with_codes:
+        if child == []:
+            continue
+
+        if compare_function == higher_is_better:
+            bestpartialtwostep_valuation = -1
+        else:
+            bestpartialtwostep_valuation = len(all_codes)
+        
+        for code in all_codes:
+            second_partition_table, second_partition_of_codes = create_next_partition(code, child,len_pegs,len_colours, all_scores)
+            second_partition_table_value = partition_table_function(second_partition_table)
+            if compare_function(second_partition_table_value, bestpartialtwostep_valuation):
+                bestpartialtwostep_valuation = second_partition_table_value
+        two_step_valuation+=bestpartialtwostep_valuation
+    return two_step_valuation
 
 
 # Function for when the strategy is to take code which minimizes valuation
@@ -322,9 +343,9 @@ if __name__ == '__main__':
     len_colours = 6
     
 
-    get_results_of_algorithm(len_pegs, len_colours, [1,1,2,2], find_entropy, higher_is_better, False)
+    #get_results_of_algorithm(len_pegs, len_colours, [1,1,2,2], find_entropy, higher_is_better, False)
 
-    # solve_one_game(len_pegs, len_colours, [2,5,3,3], find_max, lower_is_better, [1,1,2,2], False)
+    solve_one_game(len_pegs, len_colours, [5,1,6,3], find_max, lower_is_better, [1,1,2,2], False)
 
 
     # prints valuation of certain first guess using certain valuation function

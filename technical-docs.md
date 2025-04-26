@@ -23,7 +23,7 @@ Tato funkce vygeneruje seznam všech možných ohodnocení pro zadaný počet po
 Funkce pro zadané velikosti |K_{u,r}| vrátí maximální hodnotu. 
 
 #### find_entropy
-Funkce pro zadané velikosti |K_{u,r}| vrátí entropii tohoto rozdělení.
+Funkce pro zadané velikosti |K_{u,r}| vrátí entropii tohoto rozdělení. Entropie je před vrácením výsledku zaokrouhlena na 7 desetinných míst, protože při různém pořadí výpočtu entropie se tento součet zaokrouhluje jinak a nevracel by rovnosti pro stejné rozdělení potomků.
 
 #### find_number_of_parts
 Funkce pro zadané velikosti |K_{u,r}| vrátí počet neprázdných potomků.
