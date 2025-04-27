@@ -96,13 +96,13 @@ def higher_is_better(first, second):
 # Vraci mnoziny potomku vzhledem k danemu kodu a velikosti techto mnozin
 def create_next_partition(next_guess, possible_codes, len_pegs, len_colours, all_scores):
     partition_table = [0]*len(all_scores)
-    partition_of_codes = [[] for i in range(len(all_scores))]
+    partition = [[] for i in range(len(all_scores))]
     for code in possible_codes:
         temp_score = evaluate_codes(code, next_guess, len_pegs, len_colours)
         index_of_temp_score = all_scores.index(temp_score)
         partition_table[index_of_temp_score] += 1
-        partition_of_codes[index_of_temp_score].append(code)
-    return partition_table, partition_of_codes
+        partition[index_of_temp_score].append(code)
+    return partition_table, partition
 
 
 # Nalezne nejlepsi pokus pro dany stav, valuaci a strategii, vraci tento pokus, velikosti mnozin potomku a mnoziny potomku
@@ -112,52 +112,52 @@ def find_best_guess(possible_codes, len_pegs, len_colours, all_scores, all_codes
         best_partition_table_value = -1
     else:
         best_partition_table_value = len(possible_codes)
-    best_partition:list[int] = []
+    best_partition_table:list[int] = []
     best_next_guess = -1
-    best_partition_with_codes = []
+    best_partition = []
     # Pokud je mnozina kandidatu jednoprvkova, vraci jediny kod
     if len(possible_codes) == 1:
-        return possible_codes[0], best_partition, best_partition_with_codes
+        return possible_codes[0], best_partition_table, best_partition
     # Overeni krajniho pripadu
     elif len(possible_codes) == 0:
         return [], [], []
     # Vyber prvniho tahu, v pripade, ze je urceny prvni tah, algoritmus jej vybere
     elif len(possible_codes) == len_colours**len_pegs and start_code != None:
-        temp_partition_table, partition_of_codes = create_next_partition(start_code, possible_codes, len_pegs, len_colours, all_scores)
+        temp_partition_table, temp_partition = create_next_partition(start_code, possible_codes, len_pegs, len_colours, all_scores)
         temp_partition_table_value = partition_table_function(temp_partition_table)
         # Zapsani do hodnot na vystupu
-        best_partition = temp_partition_table
+        best_partition_table = temp_partition_table
         best_next_guess = start_code
-        best_partition_with_codes = partition_of_codes
+        best_partition = temp_partition
     # V pripade vyberu pouze z kandidatu
     elif choose_from_candidates == True:
         for code in possible_codes:
-            temp_partition_table, partition_of_codes = create_next_partition(code, possible_codes, len_pegs, len_colours, all_scores)
+            temp_partition_table, temp_partition = create_next_partition(code, possible_codes, len_pegs, len_colours, all_scores)
             temp_partition_table_value = partition_table_function(temp_partition_table)
             # v kazde iteraci porovnavame valuaci s aktualni nejlepsi hodnotou, protoze vybirame kod s nejvyssi nebo nejnizsi valuaci
             if compare_function(temp_partition_table_value, best_partition_table_value):
                 best_partition_table_value = temp_partition_table_value
-                best_partition = temp_partition_table
+                best_partition_table = temp_partition_table
                 best_next_guess = code
-                best_partition_with_codes = partition_of_codes
+                best_partition = temp_partition
     # V obecnem pripade vybirame dalsi kod z celeho prostoru kodu
     else:
         for code in all_codes:
-            temp_partition_table, partition_of_codes = create_next_partition(code, possible_codes, len_pegs, len_colours, all_scores)
+            temp_partition_table, temp_partition = create_next_partition(code, possible_codes, len_pegs, len_colours, all_scores)
             temp_partition_table_value = partition_table_function(temp_partition_table)
             if compare_function(temp_partition_table_value, best_partition_table_value):
                 best_partition_table_value = temp_partition_table_value
-                best_partition = temp_partition_table
+                best_partition_table = temp_partition_table
                 best_next_guess = code
-                best_partition_with_codes = partition_of_codes
+                best_partition = temp_partition
             # V pripade, ze vice kodu nabyva nejlepsi strategie chceme prednostne vybrat kod z mnoziny kandidatu
             if temp_partition_table_value == best_partition_table_value and (best_next_guess not in possible_codes) and (code in possible_codes):
                 best_partition_table_value = temp_partition_table_value
-                best_partition = temp_partition_table
+                best_partition_table = temp_partition_table
                 best_next_guess = code
-                best_partition_with_codes = partition_of_codes
+                best_partition = temp_partition
     
-    return best_next_guess, best_partition, best_partition_with_codes
+    return best_next_guess, best_partition_table, best_partition
 
 
 # Vraci vysledky algoritmu, pro kazdy stav hleda nejlepsi dalsi pokus a tim prochazi strom daneho algoritmu
@@ -224,14 +224,14 @@ def solve_one_game(len_pegs, len_colours, secret_code, partition_table_function,
     # Dokud neni tajny kod uhodnut
     while score != [len_pegs,0]:
         len_guesses +=1
-        next_guess, next_partition, best_partition_with_codes = find_best_guess(possible_codes, len_pegs, len_colours, all_scores, all_codes, partition_table_function, compare_function, start_code, choose_from_candidates)
+        next_guess, next_partition_table, best_partition = find_best_guess(possible_codes, len_pegs, len_colours, all_scores, all_codes, partition_table_function, compare_function, start_code, choose_from_candidates)
         b,w = evaluate_codes(secret_code, next_guess, len_pegs, len_colours)
         print(next_guess, b, w)
         score = [b,w]
         # pokud hra neni dohrana, je aktualizovana mnozina kandidatu po tomto kole hry
         if score != [len_pegs,0]:
             score_index = all_scores.index([b,w])
-            possible_codes = best_partition_with_codes[score_index]
+            possible_codes = best_partition[score_index]
     return len_guesses
 
 
@@ -252,8 +252,8 @@ if __name__ == '__main__':
     
     # Testuje algoritmy s pevně daným prvním pokusem
     # get_results_of_algorithm(len_pegs, len_colours, [1,1,2,2], find_max, lower_is_better, False)
-    get_results_of_algorithm(len_pegs, len_colours, [1,1,2,2], find_entropy, higher_is_better, False)
-    # get_results_of_algorithm(len_pegs, len_colours, [1,1,2,3], find_number_of_parts, higher_is_better, False)
+    # get_results_of_algorithm(len_pegs, len_colours, [1,2,3,4], find_entropy, higher_is_better, False)
+    get_results_of_algorithm(len_pegs, len_colours, [1,1,2,3], find_number_of_parts, higher_is_better, False)
 
 
     # Spustí algoritmus pro daný tajný kód
