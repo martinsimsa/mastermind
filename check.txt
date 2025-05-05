@@ -1,4 +1,4 @@
-import numpy as np
+﻿import numpy as np
 from collections import deque
 
 
@@ -203,15 +203,15 @@ def get_results_of_algorithm(len_pegs, len_colours, start_code, partition_table_
 
     # Zobrazi vysledky
     if partition_table_function == find_max:
-        print('Použitý algoritmus: Min-Max')
+        print('PouĹľitĂ˝ algoritmus: Min-Max')
     elif partition_table_function == find_entropy:
-        print('Použitý algoritmus: Max entropy')
+        print('PouĹľitĂ˝ algoritmus: Max entropy')
     elif partition_table_function == find_number_of_parts:
-        print('Použitý algoritmus: Max parts')
-    print("První pokus byl:", start_code)
-    print("Maximální počet pokusů je: ", max_len_guesses)
-    print("Průměrný počet pokusů je: ", sum([i*all_len_guesses[i] for i in range(len(all_len_guesses))]) / len_codes)
-    print("Počty tajných kódů s odpovídajícím počtem potřebných pokusů k prolomení: ", all_len_guesses)
+        print('PouĹľitĂ˝ algoritmus: Max parts')
+    print("PrvnĂ­ pokus byl:", start_code)
+    print("MaximĂˇlnĂ­ poÄŤet pokusĹŻ je: ", max_len_guesses)
+    print("PrĹŻmÄ›rnĂ˝ poÄŤet pokusĹŻ je: ", sum([i*all_len_guesses[i] for i in range(len(all_len_guesses))]) / len_codes)
+    print("PoÄŤty tajnĂ˝ch kĂłdĹŻ s odpovĂ­dajĂ­cĂ­m poÄŤtem potĹ™ebnĂ˝ch pokusĹŻ k prolomenĂ­: ", all_len_guesses)
     
 
 # Spusti algoritmus zadany valuaci a strategii s nejakym tajnym kodem, v bakalarske praci odpovida funkci Solve v Algoritmu 1
@@ -241,43 +241,32 @@ def get_valuation_of_first_guess(len_pegs, len_colours, start_code, partition_ta
     all_codes = generate_all_codes(len_pegs, len_colours)
     first_partition_table, first_partition = create_next_partition(start_code, all_codes, len_pegs, len_colours, all_scores)
     result = partition_table_function(first_partition_table)
-
-    if partition_table_function == find_max:
-        print('Valuace maximum pro kód ', start_code," je: ", result)
-    elif partition_table_function == find_entropy:
-        print('Valuace entropie potomků pro kód ', start_code," je: ", result)
-    elif partition_table_function == find_number_of_parts:
-        print('Valuace počet potomků pro kód ', start_code," je: ", result)
-    return None
+    return result
 
 
 if __name__ == '__main__':
-    # počet pozic
+    # poÄŤet pozic
     len_pegs = 4
-    # počet barev
-    len_colours = 6
+    # poÄŤet barev
+    len_colours = 7
     
-    # Testuje algoritmy s pevně daným prvním pokusem
-
-    get_results_of_algorithm(len_pegs, len_colours, [1,1,2,2], find_max, lower_is_better, False)
+    # Testuje algoritmy s pevnÄ› danĂ˝m prvnĂ­m pokusem
+    # get_results_of_algorithm(len_pegs, len_colours, [1,1,2,2], find_max, lower_is_better, False)
     # get_results_of_algorithm(len_pegs, len_colours, [1,2,3,4], find_entropy, higher_is_better, False)
     # get_results_of_algorithm(len_pegs, len_colours, [1,1,2,3], find_number_of_parts, higher_is_better, False)
-    # get_results_of_algorithm(len_pegs, len_colours, [6,6,5,5], find_max, lower_is_better, False)
-    # get_results_of_algorithm(len_pegs, len_colours, [1,2,3,4], find_entropy, higher_is_better, True)
-    # get_results_of_algorithm(len_pegs, len_colours, [6,6,5,4], find_number_of_parts, higher_is_better, False)
 
 
-    # Spustí algoritmus pro daný tajný kód
-
+    # SpustĂ­ algoritmus pro danĂ˝ tajnĂ˝ kĂłd
     #solve_one_game(len_pegs, len_colours, [5,1,6,3], find_max, lower_is_better, [1,1,2,2], False)
     #solve_one_game(len_pegs, len_colours, [5,1,6,3], find_entropy, higher_is_better, [1,1,2,2], False)
     #solve_one_game(len_pegs, len_colours, [5,1,6,3], find_number_of_parts, higher_is_better, [1,1,2,2], False)
 
 
-    # Vrátí valuaci prvního pokusu
+    # VrĂˇtĂ­ valuaci prvnĂ­ho pokusu
+    # print(get_valuation_of_first_guess(len_pegs, len_colours, [1,1,2,2], find_max))
+    # print(get_valuation_of_first_guess(len_pegs, len_colours, [1,1,2,2], find_entropy))
+    # print(get_valuation_of_first_guess(len_pegs, len_colours, [1,1,2,2], find_number_of_parts))
 
-    #get_valuation_of_first_guess(len_pegs, len_colours, [1,1,2,2], find_max)
-    #get_valuation_of_first_guess(len_pegs, len_colours, [1,2,3,4], find_entropy)
-    #get_valuation_of_first_guess(len_pegs, len_colours, [1,1,2,3], find_number_of_parts)
-
-    
+    #get_results_of_algorithm(len_pegs, len_colours, [6,6,5,5], find_max, lower_is_better, False)
+    get_results_of_algorithm(len_pegs, len_colours, [1,2,3,4], find_entropy, higher_is_better, True)
+    #get_results_of_algorithm(len_pegs, len_colours, [6,6,5,4], find_number_of_parts, higher_is_better, False)
