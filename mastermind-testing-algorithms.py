@@ -93,7 +93,7 @@ def higher_is_better(first, second):
         return False
 
 
-# Vraci mnoziny potomku vzhledem k danemu kodu a velikosti techto mnozin
+# Pro danou mnozinu kandidatu vraci potomky vzhledem k danemu kodu a jejich velikosti
 def create_next_partition(next_guess, possible_codes, len_pegs, len_colours, all_scores):
     partition_table = [0]*len(all_scores)
     partition = [[] for i in range(len(all_scores))]
