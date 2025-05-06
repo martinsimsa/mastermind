@@ -260,8 +260,8 @@ if __name__ == '__main__':
     # Testuje algoritmy s pevně daným prvním pokusem
 
     get_results_of_algorithm(len_pegs, len_colours, [1,1,2,2], find_max, lower_is_better, False)
-    # get_results_of_algorithm(len_pegs, len_colours, [1,2,3,4], find_entropy, higher_is_better, False)
-    # get_results_of_algorithm(len_pegs, len_colours, [1,1,2,3], find_number_of_parts, higher_is_better, False)
+    #get_results_of_algorithm(len_pegs, len_colours, [1,2,3,4], find_entropy, higher_is_better, False)
+    #get_results_of_algorithm(len_pegs, len_colours, [1,1,2,3], find_number_of_parts, higher_is_better, False)
     # get_results_of_algorithm(len_pegs, len_colours, [6,6,5,5], find_max, lower_is_better, False)
     # get_results_of_algorithm(len_pegs, len_colours, [1,2,3,4], find_entropy, higher_is_better, True)
     # get_results_of_algorithm(len_pegs, len_colours, [6,6,5,4], find_number_of_parts, higher_is_better, False)
@@ -269,9 +269,9 @@ if __name__ == '__main__':
 
     # Spustí algoritmus pro daný tajný kód
 
-    #solve_one_game(len_pegs, len_colours, [5,1,6,3], find_max, lower_is_better, [1,1,2,2], False)
-    #solve_one_game(len_pegs, len_colours, [5,1,6,3], find_entropy, higher_is_better, [1,1,2,2], False)
-    #solve_one_game(len_pegs, len_colours, [5,1,6,3], find_number_of_parts, higher_is_better, [1,1,2,2], False)
+    #solve_one_game(len_pegs, len_colours, [5,4,6,3], find_max, lower_is_better, [1,1,2,2], False)
+    #solve_one_game(len_pegs, len_colours, [5,1,6,2], find_entropy, higher_is_better, [1,1,2,2], False)
+    #solve_one_game(len_pegs, len_colours, [5,2,6,3], find_number_of_parts, higher_is_better, [1,1,2,2], False)
 
 
     # Vrátí valuaci prvního pokusu
